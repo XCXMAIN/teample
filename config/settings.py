@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'teample.onrender.com')
+    'teample.onrender.com'  # 직접 문자열로 명시!
 ]
 
 
