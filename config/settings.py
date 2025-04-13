@@ -150,4 +150,4 @@ SWAGGER_SETTINGS = {
         }
     }
 }
-LOGIN_URL = ''
+# LOGIN_URL = ''
