@@ -1,16 +1,16 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-from django.contrib.auth import logout
-from rest_framework import generics
+from django.contrib.auth import authenticate, logout
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
 from rest_framework.serializers import ModelSerializer
+from rest_framework.views import APIView
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
+# ✅ 로그인
 @swagger_auto_schema(
     method='post',
     request_body=openapi.Schema(
@@ -19,20 +19,9 @@ from rest_framework.serializers import ModelSerializer
         properties={
             'username': openapi.Schema(type=openapi.TYPE_STRING),
             'password': openapi.Schema(type=openapi.TYPE_STRING),
-        },
+        }
     ),
-    responses={
-        200: openapi.Response(
-            description="로그인 성공",
-            examples={
-                "application/json": {
-                    "access": "access_token값",
-                    "refresh": "refresh_token값"
-                }
-            }
-        ),
-        401: "로그인 실패 (인증 실패)"
-    }
+    responses={200: "로그인 성공", 401: "인증 실패"}
 )
 @api_view(['POST'])
 def login_view(request):
@@ -49,14 +38,17 @@ def login_view(request):
 
     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+# ✅ 로그아웃
+@swagger_auto_schema(
+    method='post',
+    responses={200: "로그아웃 완료"}
+)
+@api_view(['POST'])
 def logout_view(request):
-    """
-    JWT 로그아웃 (서버단 로그아웃 처리 예시)
-    """
-    logout(request)  # Django 세션 로그아웃 (JWT에서는 실제 세션은 없지만 보안상 추가)
+    logout(request)
     return Response({'message': '로그아웃 완료'}, status=status.HTTP_200_OK)
 
-# ✅ 회원가입용 시리얼라이저
+# ✅ 회원가입 시리얼라이저
 class RegisterSerializer(ModelSerializer):
     class Meta:
         model = User
@@ -72,7 +64,28 @@ class RegisterSerializer(ModelSerializer):
         return user
 
 # ✅ 회원가입 뷰
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
+class RegisterView(APIView):
     permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        request_body=RegisterSerializer,
+        responses={
+            201: openapi.Response(
+                description="회원가입 성공",
+                examples={"application/json": {
+                    "username": "newuser",
+                    "email": "newuser@example.com"
+                }}
+            ),
+            400: "입력 오류"
+        }
+    )
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                "username": user.username,
+                "email": user.email
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
