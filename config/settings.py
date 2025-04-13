@@ -23,10 +23,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'drf_yasg',
+    'corsheaders',  # ✅ CORS
 ]
 
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ 추가
+    'corsheaders.middleware.CorsMiddleware',  # ✅ CORS
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,9 +77,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ✅ 정적파일 배포 경로
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# ✅ 정적파일 서빙 설정 추가
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -101,6 +102,10 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+# ✅ CORS 설정 추가
+CORS_ALLOW_ALL_ORIGINS = True  # 배포 시 특정 도메인으로 제한 추천
+# CORS_ALLOWED_ORIGINS = ['https://your-frontend.com']  # 실제 도메인으로 설정 시
 
 # ✅ 로그인 URL 제거 (오류 방지용)
 # LOGIN_URL = ''
