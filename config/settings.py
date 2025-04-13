@@ -140,6 +140,7 @@ REST_FRAMEWORK = {
 }
 
 SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
     'SECURITY_DEFINITIONS': {
         'Bearer': {
             'type': 'apiKey',
@@ -149,4 +150,4 @@ SWAGGER_SETTINGS = {
         }
     }
 }
-LOGIN_URL = None
+LOGIN_URL = ''
