@@ -50,12 +50,22 @@ def logout_view(request):
 
 # ✅ 회원가입 시리얼라이저
 class RegisterSerializer(ModelSerializer):
+    confirmPassword = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields = ['username', 'password', 'email']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['username', 'email', 'password', 'confirmPassword']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def validate(self, data):
+        if data['password'] != data['confirmPassword']:
+            raise serializers.ValidationError("비밀번호와 비밀번호 확인이 일치하지 않습니다.")
+        return data
 
     def create(self, validated_data):
+        validated_data.pop('confirmPassword')  # 저장 전에 제거
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email'),
