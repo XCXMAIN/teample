@@ -23,7 +23,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'drf_yasg',
-    'corsheaders',  # ✅ CORS
+    'corsheaders',
+    'clipsearch', 
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
